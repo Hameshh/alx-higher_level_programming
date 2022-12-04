@@ -1,29 +1,25 @@
 #!/usr/bin/python3
-"""takes in the name of a state as an argument and lists all cities
-   of that state, using the database hbtn_0e_4_usa
+"""Script that takes in the name of a state as an
+argument and lists all cities of that state, using
+the database hbtn_0e_4_usa
 """
-from sqlite3 import connect
 from sys import argv
 import MySQLdb
 
 
-if __name__ == "__main__":
-    db = MySQLdb.connect(host="localhost", port=3306, user=argv[1],
-                         passwd=argv[2], db=argv[3], charset="utf8")
+if __name__ == '__main__':
+    user, password, database, state = argv[1], argv[2], argv[3], argv[4]
+    db = MySQLdb.connect(host="localhost",
+                         user=user, passwd=password, db=database)
+    db = db.cursor()
+    db.execute("""
+    SELECT cities.name
+    FROM cities
+    JOIN states
+    ON state_id=states.id
+    WHERE states.name LIKE BINARY %s
+    ORDER BY cities.id
+    """, (state,))
 
-    cur = db.cursor()
-
-    cur.execute("SELECT cities.id, cities.name, states.name "
-                "FROM cities LEFT JOIN states "
-                "ON cities.state_id = states.id "
-                "WHERE states.name = %s ORDER BY "
-                "cities.id ASC", (argv[4],))
-
-    query_rows = cur.fetchall()
-
-    s = []
-    for row in query_rows:
-        s.append(row[1])
-    print(", ".join(s))
-    cur.close()
-    db.close()
+    r = db.fetchall()
+    print(", ".join([row[0] for row in r]))

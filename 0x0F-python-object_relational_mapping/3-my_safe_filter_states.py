@@ -1,24 +1,15 @@
 #!/usr/bin/python3
-"""takes in arguments and displays all values in the
-   states table of hbtn_0e_0_usa where name matches the argument
-"""
+"""SQL injection"""
 from sys import argv
 import MySQLdb
 
-if __name__ == "__main__":
 
-    db = MySQLdb.connect(host="localhost", port=3306, user=argv[1],
-                         passwd=argv[2], db=argv[3], charset="utf8")
-
-    cur = db.cursor()
-
-    cur.execute("SELECT * FROM states WHERE name = %s ORDER BY id ASC",
-                (argv[4],))
-
-    query_rows = cur.fetchall()
-
-    for row in query_rows:
-        print(row)
-
-    cur.close()
-    db.close()
+if __name__ == '__main__':
+    user, password, database, state = argv[1], argv[2], argv[3], argv[4]
+    db = MySQLdb.connect(host="localhost",
+                         user=user, passwd=password, db=database)
+    db = db.cursor()
+    db.execute("""SELECT * FROM states WHERE name=%s ORDER BY id""", (state,))
+    r = db.fetchall()
+    for i in r:
+        print(i)
